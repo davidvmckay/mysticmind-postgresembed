@@ -1,6 +1,6 @@
 # MysticMind.PostgresEmbed _Postgres embedded database equivalent for .Net applications_ [![Build status](https://github.com/mysticmind/mysticmind-postgresembed/actions/workflows/ci.yaml/badge.svg)](https://github.com/mysticmind/mysticmind-postgresembed/actions/workflows/ci.yaml) [![NuGet Version](https://badgen.net/nuget/v/mysticmind.postgresembed)](https://www.nuget.org/packages/MysticMind.PostgresEmbed/)
 
-This is a library for running a Postgres server embedded equivalent including extensions targeting Windows, Linux and OSX (including Silicon - M1/M2) available in v3.x. This project also handles Postgres extensions very well with a neat way to configure and use it.
+This is a library for running a Postgres server embedded equivalent including extensions targeting Windows, Linux and OSX (including Silicon - M1/M2) available since v3.x or above. This project also handles Postgres extensions very well with a neat way to configure and use it.
 
 Note that until v2.x, this library was only supporting Windows.
 
@@ -58,7 +58,7 @@ using (var server = new MysticMind.PostgresEmbed.PgServer("15.3.0"))
 
     await conn.OpenAsync();
     await cmd.ExecuteNonQueryAsync();
-    conn.Close();
+    await conn.CloseAsync();
 }
 ```
 
@@ -166,7 +166,7 @@ public class DatabaseServerFixture : IDisposable
 - `postgres` is the default user (super user) to be used for connection
 - Trust authentication is the default authentication. You can pass any password in connection string which will be ignored by the server. Since our primary motivation is to use the server for unit tests on localhost, this is pretty fine to keep it simple.
 - If you pass `DbDir` path while creating the server then it will be used as the working directory else it will use the current directory. You will find a folder named `pg_embed` within which the `binaries` and instance folders are created.
-- If you would want to clear the whole root working directory prior to start of server(clear the all the folders from prior runs), you can pass you can pass `clearWorkingDirOnStart=true` in the constuctor while creating the server. By default this value is `false`.
+- If you would want to clear the whole root working directory prior to start of server(clear the all the folders from prior runs), you can pass `clearWorkingDirOnStart=true` in the constuctor while creating the server. By default this value is `false`.
 - If you would want to clear the instance directory on stopping the server, you could pass `clearInstanceDirOnStop=true` in the constuctor while creating the server. By default this value is `false`.
 - If you would want to run a named instance, you can pass a guid value for `instanceId` in the constructor. This will be helpful in scenarios where you would want to rerun the same named instance already setup. In this case, if the named directory exists, system will skip the setup process and start the server. Note that `clearInstanceDirOnStop` and `clearWorkingDirOnStart` should be `false` (this is the default as well).
 - If you don't pass a `instanceId`, system will create a new instance by running the whole setup process for every server start.
@@ -195,6 +195,7 @@ The following steps are done when you run an embedded server:
 - With regards to postgres extensions, end-users will need to run `create extension <extn_name>;` to install the extension. Library will only download and extract the extension based on the url provided.
 
 ## Known Issues
+- Some test tend to fail when running all at once in Rider with the exception message: "the database system is starting up". Just rerun that specific test and it will pass.
 
 ### Npgsql exception
 If you are using [Npgsql](https://github.com/npgsql), when you execute the server, you may sporadically notice the following exception
